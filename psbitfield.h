@@ -61,12 +61,6 @@ struct bitfield{
 		assert(0==(newval& ~widthmask));
 		allbits = UINT((expr_type(allbits) & ~mask) | ((expr_type(newval)&widthmask)<<from));
 	}
-	friend std::ostream & operator<<(std::ostream &out,bitfield const volatile &me){
-		return out << static_cast<UINT>(me);
-	}
-	friend std::ostream & operator<<(std::ostream &out,bitfield const  &me){
-		return out << static_cast<UINT>(me);
-	}
 };
 
 template<typename UINT=uint32_t>

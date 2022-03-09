@@ -4,6 +4,17 @@
 #include "xml_listener.h"
 #include "cute_runner.h"
 
+namespace psbf {
+template<uint8_t from, uint8_t width, typename UINT>
+std::ostream & operator<<(std::ostream &out, bitfield<from,width,UINT> const volatile &me){
+	return out << static_cast<typename bitfield<from,width,UINT>::expr_type>(me);
+}
+template<uint8_t from, uint8_t width, typename UINT>
+std::ostream & operator<<(std::ostream &out, bitfield<from,width,UINT> const  &me){
+	return out << static_cast<typename bitfield<from,width,UINT>::expr_type>(me);
+}
+
+}
 
 union TestField32 {
 	template<uint8_t from, uint8_t width>
