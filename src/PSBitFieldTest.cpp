@@ -18,7 +18,7 @@ union TestField32 {
 
 void testDefaultInitIsActuallyZero() {
 	TestField32 volatile field{};
-	ASSERT_EQUAL(01u,field.word);
+	ASSERT_EQUAL(0u,field.word);
 }
 void testNonZeroInitRemains(){
 	TestField32 field{{42u}};
