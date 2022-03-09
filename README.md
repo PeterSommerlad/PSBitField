@@ -1,27 +1,32 @@
 # PSBitField ![tests](https://github.com/PeterSommerlad/PSBitField/actions/workflows/psbitfieldtests.yml/badge.svg)
 
 A safe and guaranteed order bitfield helper to put in a union for accessing hardware device registers.
+(If you just keep "bitfield" entries of the same size in a union).
 
 
 this is a bitfield implementation to be used within unions for device registers
 where the bits are positioned absolutely with the least-significant-bit has from-index 0
 using the aliases with the _v makes the data members volatile to prevent optimiazations
 but note, that setting inidividual fields mean both reading and writing the word
-accessing individual union members is sanctioned, because they have the same struct-ure.
+accessing individual union members is sanctioned, because they have the same `struct`-ure.
 
+
+Note: this library is inspired by https://stackoverflow.com/questions/31726191/is-there-a-portable-alternative-to-c-bitfields and an observation at a client who had actual undefined behavior in its application.
 
 ## Usage
 
 ```C++
-	union MyReg16 {
-		template<uint8_t from, uint8_t width>
-	    using bf =  psbf::bits16_v<from,width>; // shorthand below
-		psbf::allbits16v word; // should be the first to ensure init: MyReg16 reg{};
-		bf<0,4> firstnibble;
-		bf<4,1> fourthbit;
-		bf<5,3> threebits;
-		bf<8,8> secondbyte;
-	};
+#include "psbitfield.h"
+
+union MyReg16 {
+  template<uint8_t from, uint8_t width>
+    using bf =  psbf::bits16_v<from,width>; // shorthand below
+  psbf::allbits16v word; // should be the first to ensure init: MyReg16 reg{};
+  bf<0,4> firstnibble;
+  bf<4,1> fourthbit;
+  bf<5,3> threebits;
+  bf<8,8> secondbyte;
+};
 
 void testDemonstrateUsage(){
   MyReg16 var{}; // at mmio address
