@@ -1,0 +1,9 @@
+com.cevelop.charwars.problems.ArrayProblem=-Warning
+com.cevelop.charwars.problems.CStrProblem=-Warning
+com.cevelop.charwars.problems.CStringAliasProblem=-Warning
+com.cevelop.charwars.problems.CStringCleanupProblem=-Warning
+com.cevelop.charwars.problems.CStringParameterProblem=-Warning
+com.cevelop.charwars.problems.CStringProblem=-Warning
+com.cevelop.charwars.problems.PointerParameterProblem=-Warning
+eclipse.preferences.version=1
+useParentScope=false
