@@ -30,8 +30,8 @@ void testAccessingAllSetBitsIsCorrect(){
 	ASSERT_EQUAL(0xfu, field.firstnibble);
 	ASSERT_EQUAL(0b1u, field.fourthbit);
 	ASSERT_EQUAL(0b111u, field.threebits);
-	ASSERT_EQUAL(255, field.secondbyte);
-	ASSERT_EQUAL(0xffff, field.ashort);
+	ASSERT_EQUAL(255u, field.secondbyte);
+	ASSERT_EQUAL(0xffffu, field.ashort);
 }
 void testWritingBitsInAllSetBitsClearsBits(){
 	TestField32 field{{0xffff'ffffu}};

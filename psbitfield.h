@@ -40,11 +40,12 @@ namespace psbf {
 template<uint8_t from, uint8_t width, typename UINT=uint32_t>
 struct bitfield{
 	using result_type = std::remove_volatile_t<UINT>;
+	using expr_type = std::conditional_t<sizeof(result_type)<=sizeof(unsigned),unsigned,result_type >;
 	static_assert(std::numeric_limits<UINT>::is_integer && ! std::numeric_limits<UINT>::is_signed, "must use unsigned bitfield base type");
 	static_assert(std::numeric_limits<UINT>::digits == sizeof(UINT)*CHAR_BIT);
 	static constexpr inline uint8_t wordsize = sizeof(UINT)*CHAR_BIT;
-	static constexpr inline result_type widthmask = (width == wordsize)?result_type(-1):(result_type(1)<<width)-1;
-	static constexpr inline result_type mask = (result_type(-1) >> (wordsize-width)) << from; // we have two's complement!
+	static constexpr inline expr_type widthmask = (width == wordsize)?result_type(-1):(result_type(1)<<width)-1;
+	static constexpr inline expr_type mask = (result_type(-1) >> (wordsize-width)) << from; // we have two's complement!
 	static_assert(widthmask ==  (mask>>from) );
 	static_assert((width==wordsize?result_type(-1):(result_type(1u)<<width)-result_type(1u))==(from > 0? mask>>from: mask));
 	static_assert(from < wordsize, "starting position too big");
@@ -53,13 +54,12 @@ struct bitfield{
 
 	UINT  allbits; // UINT could/should be volatile
 	constexpr
-	operator result_type() const volatile { return (allbits & mask) >> from;}
+	operator result_type() const volatile { return (expr_type(allbits) & mask) >> from;}
 	constexpr
-	operator result_type() const  { return (allbits & mask) >> from;}
-	constexpr auto& operator=(result_type newval) volatile & {
+	operator result_type() const  { return (expr_type(allbits) & mask) >> from;}
+	constexpr void operator=(result_type newval) volatile & { // don't support chaining!
 		assert(0==(newval& ~widthmask));
-		allbits = (allbits & ~mask) | ((newval&widthmask)<<from);
-		return *this;
+		allbits = UINT((expr_type(allbits) & ~mask) | ((expr_type(newval)&widthmask)<<from));
 	}
 	friend std::ostream & operator<<(std::ostream &out,bitfield const volatile &me){
 		return out << static_cast<UINT>(me);
