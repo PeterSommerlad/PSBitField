@@ -19,7 +19,7 @@ std::ostream & operator<<(std::ostream &out, bitfield<from,width,UINT> const  &m
 union TestField32 {
 	template<uint8_t from, uint8_t width>
 	using bf=psbf::bitfield<from,width>;
-	psbf::allbits<> word;
+	psbf::allbits32 word;
 	bf<0,4> firstnibble;
 	bf<4,1> fourthbit;
 	bf<5,3> threebits;
@@ -153,7 +153,7 @@ void testNonZeroInitRemains(){
 	ASSERT_EQUAL(42u,field.word);
 }
 void testAccessingAllSetBitsIsCorrect(){
-	TestField field{{0xffffu}};
+	TestField volatile field{{0xffffu}};
 	ASSERT_EQUAL(0xffffu, field.word);
 	ASSERT_EQUAL(0xfu, field.firstnibble);
 	ASSERT_EQUAL(0b1u, field.fourthbit);
@@ -245,8 +245,8 @@ void testWritingMultipleFieldsInAllClearBitsSetsBits(){
 namespace demonstration{
 	union MyReg16 {
 		template<uint8_t from, uint8_t width>
-	    using bf =  psbf::bits16_v<from,width>; // shorthand below
-		psbf::allbits16v word; // should be the first to ensure init: MyReg16 reg{};
+	    using bf =  psbf::bits16<from,width>; // shorthand below
+		psbf::allbits16 word; // should be the first to ensure init: MyReg16 reg{};
 		bf<0,4> firstnibble;
 		bf<4,1> fourthbit;
 		bf<5,3> threebits;
@@ -256,14 +256,15 @@ namespace demonstration{
 void testDemonstrateUsage(){
 
 
-MyReg16 var{}; // at mmio address
+MyReg16 volatile var{}; // at mmio address
 var.firstnibble = 42;
 std::cout << std::hex << var.word;
 var.fourthbit = 1;
 var.threebits = 5;
 std::cout << var.word;
-auto x { var.secondbyte } ;
+unsigned const x = var.secondbyte; // would not deduce integer type
 std::cout << x;
+//var.threebits = 8; // asserts
 }
 }
 

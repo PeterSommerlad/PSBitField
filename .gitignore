@@ -32,5 +32,6 @@
 *.app
 PSBitFieldTest
 PSBitFieldTest.xml
+PSBitField.xml
 .DS_Store
 /Debug/
