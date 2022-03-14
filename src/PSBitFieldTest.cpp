@@ -18,7 +18,7 @@ std::ostream & operator<<(std::ostream &out, bitfield<from,width,UINT> const  &m
 
 union TestField32 {
 	template<uint8_t from, uint8_t width>
-	using bf=psbf::bitfield<from,width>;
+	using bf=psbf::bits32<from,width>;
 	psbf::allbits32 word;
 	bf<0,4> firstnibble;
 	bf<4,1> fourthbit;
@@ -26,6 +26,7 @@ union TestField32 {
 	bf<8,8> secondbyte;
 	bf<16,16> ashort;
 };
+static_assert(not(std::is_copy_assignable_v<TestField32> || std::is_copy_constructible_v<TestField32>));
 
 void testDefaultInitIsActuallyZero() {
 	TestField32 volatile field{};
@@ -71,6 +72,18 @@ void testWritingMultipleFieldsInAllClearBitsSetsBits(){
 	field.ashort = 0xAFFEu;
 	ASSERT_EQUAL(0xAFFE'A55Au,field.word);
 }
+
+void testIfAssignmentFromBitfielCompiles(){
+	TestField32   field{{0xfedc'ba98u}};
+	//auto x { field.ashort }; // doesn't compile
+	//auto x = field.ashort ;  // doesn't compile
+	unsigned x = field.ashort; // conversion compiles
+	ASSERT_EQUAL(0xfedcu,x);
+	//auto field2 { field } ; // doesn't compile
+	//auto field2 = field ;   // doesn't compile
+}
+
+
 namespace b64 {
 union TestField {
 	template<uint8_t from, uint8_t width>
@@ -83,6 +96,8 @@ union TestField {
 	bf<16,16> ashort;
 	bf<32,32> dword;
 };
+
+static_assert(not(std::is_copy_assignable_v<TestField> || std::is_copy_constructible_v<TestField>));
 
 void testDefaultInitIsActuallyZero() {
 	TestField volatile field{};
@@ -143,6 +158,7 @@ union TestField {
 	bf<5,3> threebits;
 	bf<8,8> secondbyte;
 };
+static_assert(not(std::is_copy_assignable_v<TestField> || std::is_copy_constructible_v<TestField>));
 
 void testDefaultInitIsActuallyZero() {
 	TestField volatile field{};
@@ -197,6 +213,7 @@ union TestField {
 	bf<4,1> fourthbit;
 	bf<5,3> threebits;
 };
+static_assert(not(std::is_copy_assignable_v<TestField> || std::is_copy_constructible_v<TestField>));
 
 void testDefaultInitIsActuallyZero() {
 	TestField volatile field{};
@@ -279,6 +296,7 @@ bool runAllTests(int argc, char const *argv[]) {
 	s.push_back(CUTE(testWritingBitInAllSetBitsClearsBits));
 	s.push_back(CUTE(testWritingBitsInAllClearBitsSetsBits));
 	s.push_back(CUTE(testWritingMultipleFieldsInAllClearBitsSetsBits));
+	s.push_back(CUTE(testIfAssignmentFromBitfielCompiles));
 	s.push_back(CUTE(b64::testDefaultInitIsActuallyZero));
 	s.push_back(CUTE(b64::testNonZeroInitRemains));
 	s.push_back(CUTE(b64::testAccessingAllSetBitsIsCorrect));
@@ -299,7 +317,8 @@ bool runAllTests(int argc, char const *argv[]) {
 	s.push_back(CUTE(b8::testWritingBitsInAllSetBitsClearsBits));
 	s.push_back(CUTE(b8::testWritingBitInAllSetBitsClearsBits));
 	s.push_back(CUTE(b8::testWritingBitsInAllClearBitsSetsBits));
-	s.push_back(CUTE(b8::testWritingMultipleFieldsInAllClearBitsSetsBits));	cute::xml_file_opener xmlfile(argc, argv);
+	s.push_back(CUTE(b8::testWritingMultipleFieldsInAllClearBitsSetsBits));
+	cute::xml_file_opener xmlfile(argc, argv);
 	cute::xml_listener<cute::ide_listener<>> lis(xmlfile.out);
 	auto runner = cute::makeRunner(lis, argc, argv);
 	bool success = runner(s, "AllTests");

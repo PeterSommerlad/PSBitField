@@ -64,7 +64,6 @@ struct bitfield{
 		return const_cast<as_volatile const&>(allbits);
 	}
 
-	UINT  allbits; // UINT could/should be volatile
 	operator result_type() const volatile { return (expr_type(allbitsvolatileforread()) & mask) >> from;}
 	constexpr
 	operator result_type() const  { return (expr_type(allbits) & mask) >> from;}
@@ -77,6 +76,9 @@ struct bitfield{
 		assert(0==(newval& ~widthmask));
 		allbits = UINT((expr_type(allbits) & ~mask) | ((expr_type(newval)&widthmask)<<from));
 	}
+	// prevent copying as bitfield struct and thus surrounding union:
+	bitfield& operator=(bitfield&&) & noexcept = delete;
+	UINT  allbits;
 };
 
 namespace detail{
